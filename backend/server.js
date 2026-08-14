@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
+import invoicesRoutes from './routes/invoices.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -16,6 +17,8 @@ await fastify.register(multipart);
 fastify.get('/health', async () => {
   return { status: 'ok' };
 });
+
+await fastify.register(invoicesRoutes);
 
 const port = process.env.PORT || 3000;
 
