@@ -13,7 +13,11 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors);
-await fastify.register(multipart);
+await fastify.register(multipart, {
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB
+  },
+});
 
 fastify.get('/health', async () => {
   return { status: 'ok' };

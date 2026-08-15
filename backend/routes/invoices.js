@@ -7,18 +7,19 @@ export default async function invoicesRoutes(fastify) {
     const file = await request.file();
 
     if (!file) {
-      return reply.code(400).send({ error: 'No PDF file was uploaded' });
+      return reply.code(400).send({ error: 'No file was uploaded' });
     }
 
-    if (file.mimetype !== 'application/pdf') {
-      return reply.code(400).send({ error: 'Uploaded file must be a PDF' });
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (!ALLOWED_TYPES.includes(file.mimetype)) {
+      return reply.code(400).send({ error: 'Uploaded file must be a PDF, JPEG, or PNG image' });
     }
 
     const buffer = await file.toBuffer();
-    const pdfBase64 = buffer.toString('base64');
+    const fileBase64 = buffer.toString('base64').replace(/\n/g, '');
 
     try {
-      const extractedData = await extractInvoiceData(pdfBase64);
+      const extractedData = await extractInvoiceData(fileBase64, file.mimetype);
       extractedData.filename = file.filename;
 
       const analysisResult = await analyzeInvoice(extractedData);
