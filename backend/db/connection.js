@@ -13,6 +13,13 @@ const isInternal = process.env.DATABASE_URL?.includes('.railway.internal');
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: isInternal ? false : { rejectUnauthorized: false },
+  max: 5,
+  idleTimeoutMillis: 30000,
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 export default pool;
+export { pool };

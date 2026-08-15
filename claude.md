@@ -35,12 +35,13 @@ energybot/
 - [x] PostgreSQL connection and invoices table
 - [x] Frontend with Vite + React
 - [x] Claude extraction service
-- [ ] Analysis agent with memory
+- [x] Analysis agent with memory
 - [ ] Frontend UI
 - [ ] Deploy
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
+- Use PostgreSQL's `invoices` table as the agent's memory layer for historical comparison (last 6 invoices), instead of in-process/ephemeral memory. See docs/decisions/003-memory-through-postgresql.md.
 
 
 ## API Key
