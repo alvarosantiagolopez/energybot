@@ -2,6 +2,20 @@
 
 # Changelog
 
+## [1.4.0] 15-08-2026
+
+### Added
+- `@fastify/static` plugin dependency in `backend/package.json`.
+- Root `Dockerfile`: single multi-stage build that builds `frontend/dist` then copies it into the backend image; backend serves both the API and the static frontend from one Railway service.
+- Root `railway.json`: single-service Railway build/deploy configuration.
+- ADR 005 (`docs/decisions/005-single-service-static-frontend.md`): documents serving the frontend as static files from the Fastify backend instead of a separate nginx service.
+
+### Changed
+- `backend/server.js`: when `NODE_ENV=production`, registers `@fastify/static` to serve `frontend/dist` and falls back to `index.html` for unmatched non-API routes (client-side routing), while unmatched `/api/*` routes still return a JSON 404.
+
+### Removed
+- `backend/Dockerfile`, `frontend/Dockerfile`, `frontend/nginx.conf`, `backend/railway.json`, `frontend/railway.json` — replaced by the single root `Dockerfile`/`railway.json` per ADR 005. ADR 004 marked as superseded.
+
 ## [1.3.0] 15-08-2026
 
 ### Added
