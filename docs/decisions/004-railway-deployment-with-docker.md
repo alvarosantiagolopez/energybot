@@ -1,7 +1,7 @@
 # ADR 004: Deploy backend and frontend as separate Dockerized Railway services
 
 ## Status
-Accepted
+Superseded by [ADR 005](005-single-service-static-frontend.md). Two-service Railway deployment added operational overhead (two services, private networking config, nginx proxy) without a corresponding benefit for this project's scale; kept here for historical context.
 
 ## Context
 EnergyBot needs a production deployment on Railway per CLAUDE.md's stack decision. The project is a monorepo with two independent apps — a Fastify backend and a Vite/React frontend — that need to be built and run differently: the backend is a long-running Node process, the frontend is a static build that only needs a web server.

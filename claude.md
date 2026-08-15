@@ -26,10 +26,9 @@ energybot/
 │   ├── services/analysisService.js
 │   └── db/connection.js
 ├── frontend/
-│   ├── Dockerfile
-│   ├── nginx.conf
 │   └── src/
-├── backend/Dockerfile
+├── Dockerfile
+├── railway.json
 └── CLAUDE.md
 
 ## What's done
@@ -46,7 +45,8 @@ energybot/
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
 - Use PostgreSQL's `invoices` table as the agent's memory layer for historical comparison (last 6 invoices), instead of in-process/ephemeral memory. See docs/decisions/003-memory-through-postgresql.md.
 - The `/api/invoices/extract` endpoint runs the whole pipeline (extract → history lookup → analyze → save) as a single synchronous request rather than streaming progress via SSE/WebSockets. The frontend simulates the 5 workflow steps client-side with a timer while the request is in flight, so the UI stays simple (plain fetch, no streaming infra) while still giving the user visibility into the pipeline stages.
-- Deploy backend and frontend as two separate Dockerized Railway services (not one combined image), with nginx proxying `/api/*` from the frontend to the backend over Railway's private network. Frontend API calls use relative URLs so no environment-specific build is needed. See docs/decisions/004-railway-deployment-with-docker.md.
+- ~~Deploy backend and frontend as two separate Dockerized Railway services, with nginx proxying `/api/*` to the backend.~~ Superseded — see docs/decisions/004-railway-deployment-with-docker.md.
+- Deploy as a single Railway service: the Fastify backend serves the built React frontend as static files (`@fastify/static`, active only when `NODE_ENV=production`) instead of running a separate nginx service. One Dockerfile builds the frontend then copies it into the backend image. See docs/decisions/005-single-service-static-frontend.md.
 
 
 ## API Key

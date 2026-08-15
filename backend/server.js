@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import invoicesRoutes from './routes/invoices.js';
 import pool from './db/connection.js';
 
@@ -24,6 +25,21 @@ fastify.get('/health', async () => {
 });
 
 await fastify.register(invoicesRoutes);
+
+if (process.env.NODE_ENV === 'production') {
+  const frontendDist = path.resolve(__dirname, '../frontend/dist');
+
+  await fastify.register(fastifyStatic, {
+    root: frontendDist,
+  });
+
+  fastify.setNotFoundHandler((request, reply) => {
+    if (request.raw.url.startsWith('/api/')) {
+      return reply.code(404).send({ error: 'Not found' });
+    }
+    return reply.sendFile('index.html');
+  });
+}
 
 const port = process.env.PORT || 3000;
 
