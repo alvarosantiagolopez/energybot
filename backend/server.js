@@ -37,8 +37,10 @@ process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
 try {
-  await fastify.listen({ port });
+  await fastify.listen({ port, host: '0.0.0.0' });
+  console.log(`✅ Server listening on port ${port}`);
 } catch (err) {
+  console.error('❌ Server startup failed:', err.message);
   fastify.log.error(err);
   await pool.end();
   process.exit(1);
