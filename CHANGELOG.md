@@ -2,6 +2,17 @@
 
 # Changelog
 
+## [1.3.0] 15-08-2026
+
+### Added
+- `backend/Dockerfile` and `frontend/Dockerfile`: multi-stage Docker builds for Railway deployment. Backend runs on `node:20-alpine`; frontend builds with Vite then serves the static output via `nginx:alpine`.
+- `frontend/nginx.conf`: proxies `/api/*` to the backend service over Railway's private network and falls back to `index.html` for client-side routing.
+- `backend/railway.json` and `frontend/railway.json`: per-service Railway build/deploy configuration.
+- ADR 004 (`docs/decisions/004-railway-deployment-with-docker.md`): documents the decision to deploy backend and frontend as separate Dockerized Railway services with an nginx reverse proxy.
+
+### Changed
+- `frontend/src/api.js`: `API_BASE_URL` changed from hardcoded `http://localhost:3000` to a relative empty string, so requests work through the nginx proxy in production without an environment-specific build.
+
 ## [1.2.0] 15-08-2026
 
 ### Added

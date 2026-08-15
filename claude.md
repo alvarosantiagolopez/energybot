@@ -26,7 +26,10 @@ energybot/
 │   ├── services/analysisService.js
 │   └── db/connection.js
 ├── frontend/
+│   ├── Dockerfile
+│   ├── nginx.conf
 │   └── src/
+├── backend/Dockerfile
 └── CLAUDE.md
 
 ## What's done
@@ -37,12 +40,13 @@ energybot/
 - [x] Claude extraction service
 - [x] Analysis agent with memory
 - [x] Frontend UI
-- [ ] Deploy
+- [x] Deploy (Docker + Railway config)
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
 - Use PostgreSQL's `invoices` table as the agent's memory layer for historical comparison (last 6 invoices), instead of in-process/ephemeral memory. See docs/decisions/003-memory-through-postgresql.md.
 - The `/api/invoices/extract` endpoint runs the whole pipeline (extract → history lookup → analyze → save) as a single synchronous request rather than streaming progress via SSE/WebSockets. The frontend simulates the 5 workflow steps client-side with a timer while the request is in flight, so the UI stays simple (plain fetch, no streaming infra) while still giving the user visibility into the pipeline stages.
+- Deploy backend and frontend as two separate Dockerized Railway services (not one combined image), with nginx proxying `/api/*` from the frontend to the backend over Railway's private network. Frontend API calls use relative URLs so no environment-specific build is needed. See docs/decisions/004-railway-deployment-with-docker.md.
 
 
 ## API Key
