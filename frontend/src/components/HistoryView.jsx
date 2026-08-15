@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchInvoices } from '../api';
 
 function parseRecommendations(raw) {
@@ -43,12 +44,56 @@ function HistoryView() {
     };
   }, []);
 
-  if (isLoading) return <p className="status-message">Loading history...</p>;
-  if (error) return <p className="error-message">{error}</p>;
-  if (invoices.length === 0) return <p className="status-message">No invoices analyzed yet.</p>;
+  if (isLoading) {
+    return (
+      <div className="history-view">
+        <div className="page-header">
+          <h1>History</h1>
+          <p>All previously analyzed invoices.</p>
+        </div>
+        <p className="status-message">Loading history...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="history-view">
+        <div className="page-header">
+          <h1>History</h1>
+          <p>All previously analyzed invoices.</p>
+        </div>
+        <p className="error-message">{error}</p>
+      </div>
+    );
+  }
+
+  if (invoices.length === 0) {
+    return (
+      <div className="history-view">
+        <div className="page-header">
+          <h1>History</h1>
+          <p>All previously analyzed invoices.</p>
+        </div>
+        <div className="empty-state">
+          <span className="empty-state__icon">🗂️</span>
+          <h2>No invoices analyzed yet</h2>
+          <p>Analyzed invoices will show up here.</p>
+          <Link to="/upload" className="btn btn--primary">
+            Upload an Invoice
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="history-view">
+      <div className="page-header">
+        <h1>History</h1>
+        <p>All previously analyzed invoices.</p>
+      </div>
+
       <table className="history-table">
         <thead>
           <tr>
@@ -60,24 +105,21 @@ function HistoryView() {
           </tr>
         </thead>
         <tbody>
-          {invoices.map((invoice) => {
+          {invoices.map((invoice, index) => {
             const isExpanded = expandedId === invoice.id;
             return (
               <Fragment key={invoice.id}>
                 <tr
-                  className="history-table__row"
+                  className={`history-table__row ${index % 2 === 1 ? 'history-table__row--alt' : ''}`}
                   onClick={() => setExpandedId(isExpanded ? null : invoice.id)}
                 >
                   <td>{invoice.company || 'N/A'}</td>
                   <td>{invoice.period || 'N/A'}</td>
                   <td>{formatNumber(invoice.consumption_kwh)} kWh</td>
-                  <td>{formatNumber(invoice.total_cost, 2)}</td>
+                  <td>{formatNumber(invoice.total_cost, 2)} €</td>
                   <td>
-                    {invoice.anomalies ? (
-                      <span className="anomaly-badge">Yes</span>
-                    ) : (
-                      <span className="anomaly-badge anomaly-badge--none">No</span>
-                    )}
+                    <span className={`anomaly-dot ${invoice.anomalies ? 'anomaly-dot--alert' : 'anomaly-dot--ok'}`} />
+                    {invoice.anomalies ? 'Detected' : 'Clean'}
                   </td>
                 </tr>
                 {isExpanded && (

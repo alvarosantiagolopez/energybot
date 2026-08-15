@@ -10,6 +10,8 @@ function formatDiff(value) {
   return `${sign}${rounded}%`;
 }
 
+const RECOMMENDATION_ICONS = ['💡', '🔧', '📉', '⚡', '🔋'];
+
 /**
  * Shows the extracted invoice data, historical comparison, anomalies,
  * AI analysis, and recommendations for a single processed invoice.
@@ -23,29 +25,32 @@ function ResultView({ data, onUploadAnother }) {
 
   return (
     <div className="result-view">
+      <div className="metric-grid">
+        <div className="metric-card">
+          <span className="metric-card__label">Company</span>
+          <span className="metric-card__value metric-card__value--small">{extracted.companyName || 'N/A'}</span>
+        </div>
+        <div className="metric-card">
+          <span className="metric-card__label">Billing Period</span>
+          <span className="metric-card__value metric-card__value--small">
+            {extracted.billingPeriod?.start} → {extracted.billingPeriod?.end}
+          </span>
+        </div>
+        <div className="metric-card">
+          <span className="metric-card__label">Consumption</span>
+          <span className="metric-card__value">{formatNumber(extracted.consumptionKwh)} kWh</span>
+        </div>
+        <div className="metric-card">
+          <span className="metric-card__label">Total Cost</span>
+          <span className="metric-card__value">
+            {formatNumber(extracted.totalCost, 2)} {extracted.currency}
+          </span>
+        </div>
+      </div>
+
       <section className="card">
-        <h2>Invoice Data</h2>
+        <h2>Contract Details</h2>
         <div className="data-grid">
-          <div className="data-item">
-            <span className="data-label">Company</span>
-            <span className="data-value">{extracted.companyName || 'N/A'}</span>
-          </div>
-          <div className="data-item">
-            <span className="data-label">Billing Period</span>
-            <span className="data-value">
-              {extracted.billingPeriod?.start} → {extracted.billingPeriod?.end}
-            </span>
-          </div>
-          <div className="data-item">
-            <span className="data-label">Consumption</span>
-            <span className="data-value">{formatNumber(extracted.consumptionKwh)} kWh</span>
-          </div>
-          <div className="data-item">
-            <span className="data-label">Total Cost</span>
-            <span className="data-value">
-              {formatNumber(extracted.totalCost, 2)} {extracted.currency}
-            </span>
-          </div>
           <div className="data-item">
             <span className="data-label">Cost per kWh</span>
             <span className="data-value">{formatNumber(extracted.costPerKwh, 4)}</span>
@@ -97,7 +102,9 @@ function ResultView({ data, onUploadAnother }) {
           <div className="recommendation-grid">
             {recommendations.map((rec, index) => (
               <div key={index} className="recommendation-card">
-                <span className="recommendation-card__number">{index + 1}</span>
+                <span className="recommendation-card__icon">
+                  {RECOMMENDATION_ICONS[index % RECOMMENDATION_ICONS.length]}
+                </span>
                 <p>{rec}</p>
               </div>
             ))}
@@ -105,9 +112,9 @@ function ResultView({ data, onUploadAnother }) {
         </section>
       )}
 
-      <div className="upload-actions">
+      <div className="upload-actions upload-actions--center">
         <button className="btn btn--primary" onClick={onUploadAnother}>
-          Upload Another Invoice
+          Analyze Another Invoice
         </button>
       </div>
     </div>
