@@ -86,6 +86,11 @@ function UploadView() {
 
   return (
     <div className="upload-view">
+      <div className="page-header">
+        <h1>Upload Invoice</h1>
+        <p>Upload an energy invoice and let AI extract, compare, and analyze it.</p>
+      </div>
+
       <div
         className={`dropzone ${isDragging ? 'dropzone--active' : ''} ${file ? 'dropzone--has-file' : ''}`}
         onDrop={handleDrop}
@@ -109,8 +114,8 @@ function UploadView() {
         ) : (
           <div className="dropzone__prompt">
             <span className="dropzone__icon">⬆</span>
-            <p>Drag and drop your invoice here, or click to browse</p>
-            <p className="dropzone__hint">PDF, JPG, or PNG</p>
+            <p className="dropzone__title">Drop your energy invoice here</p>
+            <p className="dropzone__hint">Supports PDF, JPG, PNG</p>
           </div>
         )}
       </div>

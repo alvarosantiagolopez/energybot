@@ -40,6 +40,7 @@ energybot/
 - [x] Analysis agent with memory
 - [x] Frontend UI
 - [x] Deploy (Docker + Railway config)
+- [x] Dashboard view with charts + navigation/routing polish
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
@@ -47,6 +48,8 @@ energybot/
 - The `/api/invoices/extract` endpoint runs the whole pipeline (extract → history lookup → analyze → save) as a single synchronous request rather than streaming progress via SSE/WebSockets. The frontend simulates the 5 workflow steps client-side with a timer while the request is in flight, so the UI stays simple (plain fetch, no streaming infra) while still giving the user visibility into the pipeline stages.
 - ~~Deploy backend and frontend as two separate Dockerized Railway services, with nginx proxying `/api/*` to the backend.~~ Superseded — see docs/decisions/004-railway-deployment-with-docker.md.
 - Deploy as a single Railway service: the Fastify backend serves the built React frontend as static files (`@fastify/static`, active only when `NODE_ENV=production`) instead of running a separate nginx service. One Dockerfile builds the frontend then copies it into the backend image. See docs/decisions/005-single-service-static-frontend.md.
+- Use `react-router-dom` for real client-side routing (`/dashboard`, `/upload`, `/history`) instead of the previous `useState`-based tab switcher, now that there are 3 distinct views with Dashboard as the home page. Dashboard reuses the existing `GET /api/invoices` endpoint (no new backend endpoint) and aggregates totals/averages/charts client-side, keeping the backend API surface unchanged.
+- Use `recharts` for the Dashboard's consumption/cost line charts — lightweight, React-native charting without a heavier dependency like D3 directly.
 
 
 ## API Key

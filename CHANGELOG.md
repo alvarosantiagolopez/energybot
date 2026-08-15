@@ -2,6 +2,20 @@
 
 # Changelog
 
+## [1.5.0] 15-08-2026
+
+### Added
+- Dashboard view (`frontend/src/components/DashboardView.jsx`): home page showing total invoices analyzed, total spend, average consumption, latest anomaly, and consumption/cost line charts over time (via `recharts`), all sourced from `GET /api/invoices`.
+- `frontend/src/components/Header.jsx`: shared navigation header with `react-router-dom` `NavLink`s for Dashboard, Upload, and History.
+- Client-side routing (`react-router-dom`) with `/dashboard`, `/upload`, `/history` routes; `/` redirects to `/dashboard`.
+- Empty states (no invoices yet) and error states across Dashboard and History views.
+
+### Changed
+- Full visual redesign (`frontend/src/App.css`) applying the design system: dark navy (`#0F172A`) header, white cards with subtle shadows and rounded corners, blue (`#3B82F6`) primary accent, green (`#10B981`) for positive/clean indicators, red (`#EF4444`) for anomalies/warnings.
+- History view: anomaly column now uses a colored dot indicator (red/green) instead of a text badge; rows alternate background color.
+- Result view: invoice summary fields (company, period, consumption, total cost) promoted to metric cards; recommendation cards now use emoji icons instead of numbered badges; "Upload Another Invoice" renamed to "Analyze Another Invoice".
+- Upload view copy updated to match spec: "Drop your energy invoice here" / "Supports PDF, JPG, PNG".
+
 ## [1.4.0] 15-08-2026
 
 ### Added
