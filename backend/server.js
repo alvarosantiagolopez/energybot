@@ -6,6 +6,7 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import invoicesRoutes from './routes/invoices.js';
+import crmRoutes from './routes/crm.js';
 import pool from './db/connection.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,6 +26,7 @@ fastify.get('/health', async () => {
 });
 
 await fastify.register(invoicesRoutes);
+await fastify.register(crmRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   const frontendDist = path.resolve(__dirname, '../frontend/dist');

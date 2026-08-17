@@ -17,7 +17,7 @@ const RECOMMENDATION_ICONS = ['💡', '🔧', '📉', '⚡', '🔋'];
  * AI analysis, and recommendations for a single processed invoice.
  */
 function ResultView({ data, onUploadAnother }) {
-  const { extracted, comparison, anomalies, analysis, recommendations } = data;
+  const { extracted, comparison, anomalies, analysis, recommendations, crmSync } = data;
 
   const hasHistory = comparison && (comparison.avgConsumption !== null || comparison.avgCostPerKwh !== null);
   const consumptionDiff = formatDiff(comparison?.consumptionDiffPct);
@@ -29,6 +29,9 @@ function ResultView({ data, onUploadAnother }) {
         <div className="metric-card">
           <span className="metric-card__label">Company</span>
           <span className="metric-card__value metric-card__value--small">{extracted.companyName || 'N/A'}</span>
+          {crmSync && (
+            <span className="crm-sync-badge">✓ Synced with CRM</span>
+          )}
         </div>
         <div className="metric-card">
           <span className="metric-card__label">Billing Period</span>

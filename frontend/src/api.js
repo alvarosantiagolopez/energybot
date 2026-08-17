@@ -3,7 +3,7 @@ const API_BASE_URL = '';
 /**
  * Uploads an invoice file to be extracted and analyzed.
  * @param {File} file
- * @returns {Promise<object>} { invoice, extracted, comparison, anomalies, analysis, recommendations }
+ * @returns {Promise<object>} { invoice, extracted, comparison, anomalies, analysis, recommendations, crmSync }
  */
 export async function extractInvoice(file) {
   const formData = new FormData();
@@ -30,6 +30,19 @@ export async function fetchInvoices() {
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || 'Failed to fetch invoices');
+  }
+  return data;
+}
+
+/**
+ * Fetches all CRM contacts with their sync status, newest sync first.
+ * @returns {Promise<object[]>}
+ */
+export async function fetchCrmContacts() {
+  const response = await fetch(`${API_BASE_URL}/api/crm/contacts`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to fetch CRM contacts');
   }
   return data;
 }

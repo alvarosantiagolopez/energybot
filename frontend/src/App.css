@@ -422,6 +422,17 @@ body {
   font-weight: 600;
 }
 
+.crm-sync-badge {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-green);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+}
+
 .result-view {
   display: flex;
   flex-direction: column;

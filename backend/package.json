@@ -9,6 +9,7 @@
     "dev:clean": "powershell -ExecutionPolicy Bypass -File dev-clean.ps1",
     "start": "node server.js",
     "migrate": "node db/migrate.js",
+    "seed": "node db/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

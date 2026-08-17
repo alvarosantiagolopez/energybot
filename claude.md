@@ -22,8 +22,10 @@ energybot/
 ├── backend/
 │   ├── server.js
 │   ├── routes/invoices.js
+│   ├── routes/crm.js
 │   ├── services/claudeService.js
 │   ├── services/analysisService.js
+│   ├── services/crmService.js
 │   └── db/connection.js
 ├── frontend/
 │   └── src/
@@ -41,6 +43,8 @@ energybot/
 - [x] Frontend UI
 - [x] Deploy (Docker + Railway config)
 - [x] Dashboard view with charts + navigation/routing polish
+- [x] Simulated CRM integration (auto-sync on invoice analysis + CRM view)
+- [x] Database seed script with realistic demo data (6 invoices, 3 companies, 1 anomaly)
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
@@ -50,6 +54,7 @@ energybot/
 - Deploy as a single Railway service: the Fastify backend serves the built React frontend as static files (`@fastify/static`, active only when `NODE_ENV=production`) instead of running a separate nginx service. One Dockerfile builds the frontend then copies it into the backend image. See docs/decisions/005-single-service-static-frontend.md.
 - Use `react-router-dom` for real client-side routing (`/dashboard`, `/upload`, `/history`) instead of the previous `useState`-based tab switcher, now that there are 3 distinct views with Dashboard as the home page. Dashboard reuses the existing `GET /api/invoices` endpoint (no new backend endpoint) and aggregates totals/averages/charts client-side, keeping the backend API surface unchanged.
 - Use `recharts` for the Dashboard's consumption/cost line charts — lightweight, React-native charting without a heavier dependency like D3 directly.
+- Simulate the CRM integration (find-or-create `crm_contacts` by company name, automatic sync inline after invoice save, sync-status tracking) against the project's own PostgreSQL database instead of a real HubSpot/Salesforce sandbox, since no external CRM account is available for this portfolio project. The pattern (data mapping, automatic sync, status tracking) maps directly to a real CRM API integration. See docs/decisions/006-simulated-crm-integration.md.
 
 
 ## API Key
@@ -71,11 +76,14 @@ PostgreSQL Railway
 npm run dev:clean    # Kill any running node processes and start backend
 npm run dev          # Start backend (if no conflicts)
 npm start            # Start backend in production mode
+npm run migrate      # Run database migrations (creates tables)
+npm run seed         # Seed database with 6 realistic demo invoices
 ```
 
 **Frontend** (from `frontend/` directory):
 ```bash
 npm run dev          # Start frontend
+npm run build        # Build for production
 ```
 
 When you finish, update CLAUDE.md:

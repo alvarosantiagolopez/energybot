@@ -2,6 +2,26 @@
 
 # Changelog
 
+## [1.7.0] 17-08-2026
+
+### Added
+- `backend/db/seed.js`: database seed script that populates 6 realistic demo invoices (3 from Endesa, 2 from Iberdrola with 1 anomaly, 1 from Naturgy) and auto-syncs them to CRM contacts.
+- Seeded invoices include Spanish AI analysis and actionable recommendations; raw extracted data as JSONB; realistic consumption (45-180 kWh) and cost variations.
+- One seeded Iberdrola invoice demonstrates anomaly detection (80%+ consumption increase).
+- Seed script is idempotent: skips if >3 invoices already exist, making it safe to run multiple times.
+- `npm run seed` script added to `backend/package.json`.
+
+## [1.6.0] 17-08-2026
+
+### Added
+- `crm_contacts` table (`backend/db/schema.sql`): stores simulated CRM contacts keyed by company name, with last synced invoice/consumption, anomaly status, and sync status/timestamp.
+- `backend/services/crmService.js`: `syncInvoiceToCRM()` finds or creates a CRM contact by company name and updates it with the latest invoice/analysis data; `getAllContacts()` lists all contacts.
+- `GET /api/crm/contacts` endpoint (`backend/routes/crm.js`): returns all CRM contacts.
+- `POST /api/invoices/extract` now calls `syncInvoiceToCRM()` automatically after saving each invoice and includes the result as `crmSync` in the response.
+- CRM view (`frontend/src/components/CrmView.jsx`), added to navigation as "CRM": table of all contacts with company, last consumption, anomaly status (colored dot), sync status, and last synced timestamp.
+- Result view now shows a "✓ Synced with CRM" badge confirming the automatic sync.
+- ADR 006 (`docs/decisions/006-simulated-crm-integration.md`): documents simulating a CRM integration (find-or-create, automatic sync, status tracking) instead of connecting to a real HubSpot/Salesforce sandbox, and what would change for production.
+
 ## [1.5.0] 15-08-2026
 
 ### Added
