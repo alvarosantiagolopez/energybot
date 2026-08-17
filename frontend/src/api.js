@@ -46,3 +46,17 @@ export async function fetchCrmContacts() {
   }
   return data;
 }
+
+/**
+ * Fetches statistical trend analysis (Python microservice) over all historical invoices.
+ * Returns null if the statistics service was unavailable when the backend queried it.
+ * @returns {Promise<object|null>}
+ */
+export async function fetchTrends() {
+  const response = await fetch(`${API_BASE_URL}/api/invoices/trends`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to fetch trend analysis');
+  }
+  return data;
+}

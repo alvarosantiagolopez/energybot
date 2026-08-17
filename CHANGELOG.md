@@ -1,8 +1,17 @@
 # Changelog
 
-# Changelog
-
 ## [1.7.0] 17-08-2026
+
+### Added
+- `python-service/`: a FastAPI microservice for statistical trend analysis. `analyzer.py`'s `calculate_trends()` computes monthly average consumption/cost, a trend direction and percentage via linear regression (`scipy.stats.linregress`), summer-vs-winter seasonality detection, the peak consumption month, and an estimated savings potential in EUR. `main.py` exposes `POST /analyze-trends` and `GET /health`.
+- `backend/services/analysisService.js`: `fetchTrends()` queries all historical invoices and calls the Python service; fails gracefully (logs a warning, returns `null`) if the service is unreachable or times out (10-second limit).
+- `GET /api/invoices/trends` endpoint (`backend/routes/invoices.js`): lets the Dashboard fetch trend data independently of the upload flow. `POST /api/invoices/extract` now also includes a `trends` field in its response.
+- Dashboard "Trend Analysis" card (`frontend/src/components/DashboardView.jsx`): trend direction with an arrow icon (↑/↓/→), percentage change, a seasonality badge, the peak consumption month, and — when positive — an estimated savings figure highlighted in green. Hidden entirely if the Python service didn't return data.
+- Root `Dockerfile`: now a multi-language build that installs Python and Node in a single `python:3.12-alpine` base image. Frontend builds first, then both Python dependencies and Node dependencies are installed, and both services are packaged together.
+- `docker-entrypoint.sh`: shell script that starts the Python service (port 8000) in the background, then the Node backend (port 3000) in the foreground; both run inside the same container.
+- ADR 007 (`docs/decisions/007-python-microservice-for-statistics.md`): documents using Python for statistical analysis, the microservice pattern, graceful degradation, and the production-ready Docker setup with both services in one container.
+
+## [1.6.1] 17-08-2026
 
 ### Added
 - `backend/db/seed.js`: database seed script that populates 6 realistic demo invoices (3 from Endesa, 2 from Iberdrola with 1 anomaly, 1 from Naturgy) and auto-syncs them to CRM contacts.
