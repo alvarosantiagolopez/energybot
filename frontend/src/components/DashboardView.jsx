@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { fetchInvoices } from '../api';
+import { fetchInvoices, fetchTrends } from '../api';
 
 function formatNumber(value, digits = 1) {
   if (value === null || value === undefined || Number.isNaN(Number(value))) return 'N/A';
@@ -35,10 +35,17 @@ function ChartTooltip({ active, payload, label, unit }) {
  * Home view: aggregate KPIs and consumption/cost trends across all
  * analyzed invoices, sourced from GET /api/invoices (same data as History).
  */
+const TREND_ICONS = {
+  increasing: '↑',
+  decreasing: '↓',
+  stable: '→',
+};
+
 function DashboardView() {
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [trends, setTrends] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,6 +59,13 @@ function DashboardView() {
       .finally(() => {
         if (isMounted) setIsLoading(false);
       });
+    // Trend analysis comes from an optional Python microservice; if it's
+    // unavailable, silently skip the section rather than surfacing an error.
+    fetchTrends()
+      .then((data) => {
+        if (isMounted) setTrends(data);
+      })
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
@@ -178,6 +192,44 @@ function DashboardView() {
           </ResponsiveContainer>
         </section>
       </div>
+
+      {trends && !trends.insufficient_data && (
+        <section className="card trend-analysis">
+          <h2>Trend Analysis</h2>
+          <div className="trend-grid">
+            <div className="trend-item">
+              <span className="trend-item__label">Trend Direction</span>
+              <span className={`trend-item__value trend-item__value--${trends.trend_direction}`}>
+                {TREND_ICONS[trends.trend_direction] || '→'}{' '}
+                {trends.trend_direction.charAt(0).toUpperCase() + trends.trend_direction.slice(1)}
+              </span>
+            </div>
+            <div className="trend-item">
+              <span className="trend-item__label">Change Over Period</span>
+              <span className="trend-item__value">
+                {trends.trend_percentage > 0 ? '+' : ''}
+                {formatNumber(trends.trend_percentage, 1)}%
+              </span>
+            </div>
+            <div className="trend-item">
+              <span className="trend-item__label">Seasonality</span>
+              <span className={`badge ${trends.seasonality_detected ? 'badge--active' : 'badge--muted'}`}>
+                {trends.seasonality_detected ? 'Detected' : 'Not detected'}
+              </span>
+            </div>
+            <div className="trend-item">
+              <span className="trend-item__label">Peak Month</span>
+              <span className="trend-item__value">{trends.peak_month || 'N/A'}</span>
+            </div>
+          </div>
+          {trends.savings_potential_eur !== null && trends.savings_potential_eur > 0 && (
+            <p className="trend-savings">
+              Estimated savings potential: <strong>{formatNumber(trends.savings_potential_eur, 2)} €</strong>{' '}
+              if consumption is brought down to your average.
+            </p>
+          )}
+        </section>
+      )}
 
       {stats.latestAnomaly && (
         <section className="card card--anomaly">

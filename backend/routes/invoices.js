@@ -1,5 +1,5 @@
 import { extractInvoiceData } from '../services/claudeService.js';
-import { analyzeInvoice, saveInvoice } from '../services/analysisService.js';
+import { analyzeInvoice, saveInvoice, fetchTrends } from '../services/analysisService.js';
 import { syncInvoiceToCRM } from '../services/crmService.js';
 import pool from '../db/connection.js';
 
@@ -26,6 +26,7 @@ export default async function invoicesRoutes(fastify) {
       const analysisResult = await analyzeInvoice(extractedData);
       const savedInvoice = await saveInvoice(extractedData, analysisResult);
       const crmSync = await syncInvoiceToCRM(extractedData, analysisResult, savedInvoice.id);
+      const trends = await fetchTrends();
 
       return reply.send({
         invoice: savedInvoice,
@@ -34,6 +35,7 @@ export default async function invoicesRoutes(fastify) {
         anomalies: analysisResult.anomalies,
         analysis: analysisResult.analysis,
         recommendations: analysisResult.recommendations,
+        trends,
         crmSync: crmSync ? {
           id: crmSync.id,
           company_name: crmSync.company_name,
@@ -60,5 +62,10 @@ export default async function invoicesRoutes(fastify) {
       fastify.log.error(err);
       return reply.code(500).send({ error: 'Failed to fetch invoices' });
     }
+  });
+
+  fastify.get('/api/invoices/trends', async (request, reply) => {
+    const trends = await fetchTrends();
+    return reply.send(trends);
   });
 }

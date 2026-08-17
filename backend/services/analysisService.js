@@ -4,6 +4,7 @@ import pool from '../db/connection.js';
 const MODEL = 'claude-sonnet-4-6';
 const ANOMALY_THRESHOLD_PCT = 20;
 const HISTORY_LIMIT = 6;
+const STATS_SERVICE_URL = process.env.STATS_SERVICE_URL || 'http://localhost:8000';
 
 let client = null;
 
@@ -179,4 +180,46 @@ export async function saveInvoice(extractedData, analysisResult) {
   );
 
   return rows[0];
+}
+
+/**
+ * Calls the Python statistics microservice to compute consumption/cost trends
+ * across all historical invoices. Fails gracefully: if the service is
+ * unreachable or errors, logs a warning and returns null so the caller can
+ * continue without trend data.
+ * @returns {Promise<object|null>}
+ */
+export async function fetchTrends() {
+  try {
+    const { rows } = await pool.query(
+      'SELECT period, consumption_kwh, total_cost FROM invoices ORDER BY created_at ASC'
+    );
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(`${STATS_SERVICE_URL}/analyze-trends`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        invoices: rows.map((r) => ({
+          period: r.period,
+          consumption_kwh: Number(r.consumption_kwh),
+          total_cost: Number(r.total_cost),
+        })),
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Statistics service responded with ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.warn(`Statistics service unavailable, continuing without trends: ${err.message}`);
+    return null;
+  }
 }

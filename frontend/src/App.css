@@ -356,6 +356,7 @@ body {
 .card--anomaly {
   background: #fef2f2;
   border-color: #fecaca;
+  margin-top: 1.5rem;
 }
 
 .card--anomaly h2 {
@@ -420,6 +421,77 @@ body {
 .metric-card__value--small {
   font-size: 1.05rem;
   font-weight: 600;
+}
+
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.trend-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.trend-item__label {
+  font-size: 0.78rem;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.trend-item__value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.trend-item__value--increasing {
+  color: var(--color-red);
+}
+
+.trend-item__value--decreasing {
+  color: var(--color-green);
+}
+
+.trend-item__value--stable {
+  color: var(--color-text);
+}
+
+.badge {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+}
+
+.badge--active {
+  color: var(--color-blue-dark);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.badge--muted {
+  color: var(--color-text-subtle);
+  background: #f1f5f9;
+  border: 1px solid var(--color-border);
+}
+
+.trend-savings {
+  margin: 1.1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.trend-savings strong {
+  color: var(--color-green);
+  font-size: 1.05rem;
 }
 
 .crm-sync-badge {
@@ -651,6 +723,10 @@ body {
   .chart-grid {
     grid-template-columns: 1fr;
   }
+
+  .trend-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
@@ -674,6 +750,10 @@ body {
   }
 
   .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trend-grid {
     grid-template-columns: 1fr;
   }
 
