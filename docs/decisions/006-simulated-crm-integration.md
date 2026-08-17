@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-This portfolio project targets a Product Engineer role whose job posting explicitly calls out "maintaining and evolving integrations with CRM tools" as a required skill. EnergyBot has no natural CRM touchpoint on its own — it analyzes energy invoices, not sales pipelines — so demonstrating this skill requires deliberately adding an integration surface.
+EnergyBot has no natural CRM touchpoint on its own — it analyzes energy invoices, not sales pipelines — so demonstrating this skill requires deliberately adding an integration surface.
 
 A real integration would need a live HubSpot or Salesforce account, OAuth credentials, and a sandbox environment, none of which are available for a solo portfolio project. The choice was between skipping the CRM requirement entirely, or simulating the integration data model and sync pattern against EnergyBot's own PostgreSQL database.
 
