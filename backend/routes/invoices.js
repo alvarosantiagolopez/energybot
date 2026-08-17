@@ -1,5 +1,6 @@
 import { extractInvoiceData } from '../services/claudeService.js';
 import { analyzeInvoice, saveInvoice } from '../services/analysisService.js';
+import { syncInvoiceToCRM } from '../services/crmService.js';
 import pool from '../db/connection.js';
 
 export default async function invoicesRoutes(fastify) {
@@ -24,6 +25,7 @@ export default async function invoicesRoutes(fastify) {
 
       const analysisResult = await analyzeInvoice(extractedData);
       const savedInvoice = await saveInvoice(extractedData, analysisResult);
+      const crmSync = await syncInvoiceToCRM(extractedData, analysisResult, savedInvoice.id);
 
       return reply.send({
         invoice: savedInvoice,
@@ -32,6 +34,17 @@ export default async function invoicesRoutes(fastify) {
         anomalies: analysisResult.anomalies,
         analysis: analysisResult.analysis,
         recommendations: analysisResult.recommendations,
+        crmSync: crmSync ? {
+          id: crmSync.id,
+          company_name: crmSync.company_name,
+          contact_email: crmSync.contact_email,
+          last_invoice_id: crmSync.last_invoice_id,
+          last_consumption_kwh: crmSync.last_consumption_kwh ? parseFloat(crmSync.last_consumption_kwh) : null,
+          last_sync_status: crmSync.last_sync_status,
+          anomaly_status: crmSync.anomaly_status,
+          last_synced_at: crmSync.last_synced_at ? crmSync.last_synced_at.toISOString() : null,
+          created_at: crmSync.created_at ? crmSync.created_at.toISOString() : null,
+        } : null,
       });
     } catch (err) {
       fastify.log.error(err);

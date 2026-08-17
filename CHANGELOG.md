@@ -2,6 +2,17 @@
 
 # Changelog
 
+## [1.6.0] 17-08-2026
+
+### Added
+- `crm_contacts` table (`backend/db/schema.sql`): stores simulated CRM contacts keyed by company name, with last synced invoice/consumption, anomaly status, and sync status/timestamp.
+- `backend/services/crmService.js`: `syncInvoiceToCRM()` finds or creates a CRM contact by company name and updates it with the latest invoice/analysis data; `getAllContacts()` lists all contacts.
+- `GET /api/crm/contacts` endpoint (`backend/routes/crm.js`): returns all CRM contacts.
+- `POST /api/invoices/extract` now calls `syncInvoiceToCRM()` automatically after saving each invoice and includes the result as `crmSync` in the response.
+- CRM view (`frontend/src/components/CrmView.jsx`), added to navigation as "CRM": table of all contacts with company, last consumption, anomaly status (colored dot), sync status, and last synced timestamp.
+- Result view now shows a "✓ Synced with CRM" badge confirming the automatic sync.
+- ADR 006 (`docs/decisions/006-simulated-crm-integration.md`): documents simulating a CRM integration (find-or-create, automatic sync, status tracking) instead of connecting to a real HubSpot/Salesforce sandbox, and what would change for production.
+
 ## [1.5.0] 15-08-2026
 
 ### Added
