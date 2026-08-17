@@ -44,6 +44,7 @@ energybot/
 - [x] Deploy (Docker + Railway config)
 - [x] Dashboard view with charts + navigation/routing polish
 - [x] Simulated CRM integration (auto-sync on invoice analysis + CRM view)
+- [x] Database seed script with realistic demo data (6 invoices, 3 companies, 1 anomaly)
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
@@ -75,11 +76,14 @@ PostgreSQL Railway
 npm run dev:clean    # Kill any running node processes and start backend
 npm run dev          # Start backend (if no conflicts)
 npm start            # Start backend in production mode
+npm run migrate      # Run database migrations (creates tables)
+npm run seed         # Seed database with 6 realistic demo invoices
 ```
 
 **Frontend** (from `frontend/` directory):
 ```bash
 npm run dev          # Start frontend
+npm run build        # Build for production
 ```
 
 When you finish, update CLAUDE.md:
