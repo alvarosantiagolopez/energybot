@@ -51,6 +51,7 @@ energybot/
 - [x] Simulated CRM integration (auto-sync on invoice analysis + CRM view)
 - [x] Database seed script with realistic demo data (6 invoices, 3 companies, 1 anomaly)
 - [x] Python microservice for statistical trend analysis (linear regression, seasonality, savings potential) + Dashboard "Trend Analysis" section
+- [x] Automatic email alerts (Resend) when an anomaly is detected, sent after CRM sync
 
 ## Key decisions made
 - Use Claude API directly (with native PDF support + structured outputs) for invoice extraction instead of a traditional OCR library. See docs/decisions/002-claude-api-for-extraction.md.
@@ -62,6 +63,7 @@ energybot/
 - Use `recharts` for the Dashboard's consumption/cost line charts — lightweight, React-native charting without a heavier dependency like D3 directly.
 - Simulate the CRM integration (find-or-create `crm_contacts` by company name, automatic sync inline after invoice save, sync-status tracking) against the project's own PostgreSQL database instead of a real HubSpot/Salesforce sandbox, since no external CRM account is available for this portfolio project. The pattern (data mapping, automatic sync, status tracking) maps directly to a real CRM API integration. See docs/decisions/006-simulated-crm-integration.md.
 - Add a separate Python + FastAPI microservice (`python-service/`) for statistical trend analysis (linear regression, seasonality detection, savings potential) instead of implementing the math in JavaScript, since numpy/pandas/scipy are the natural fit for this kind of analysis and it demonstrates a polyglot microservice architecture. The Node backend calls it over HTTP (`STATS_SERVICE_URL`, defaults to `http://localhost:8000`) with a 10-second timeout and fails gracefully (logs a warning, continues without trend data) if the service is unavailable — invoice analysis never depends on it being up. The production `Dockerfile` packages both Python and Node services in a single container using `docker-entrypoint.sh` to start both processes, ready for deployment to Railway as a single unit. See docs/decisions/007-python-microservice-for-statistics.md.
+- Send automatic email alerts via Resend (`backend/services/emailService.js`) when the analysis agent detects an anomaly, instead of only surfacing it in the UI — demonstrating that the agent acts on its findings, not just reports them. Resend was chosen over SendGrid/Mailgun for its simpler API and generous free tier. The send happens inline after CRM sync in `POST /api/invoices/extract`, is skipped (not an error) when there's no anomaly, and fails gracefully (logs a warning, `emailAlert: { sent: false, reason }`) if `RESEND_API_KEY`/`ALERT_EMAIL` are unset or the API call fails. See docs/decisions/008-email-alerts-for-anomalies.md.
 
 
 ## API Key
