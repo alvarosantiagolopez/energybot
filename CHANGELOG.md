@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.9.0] 19-08-2026
+
+### Added
+- `backend/services/agentService.js`: `prioritizeAndAct(invoiceData, analysisResult, historicalInvoices, crmContact)` — an internal prioritization agent that reasons over historical anomaly pattern, client lifetime value, and inferred anomaly type (billing error vs. consumption increase vs. seasonal vs. unclear) to decide `priority`, `reasoning`, `likelyRootCause`, `suggestedAction`, and `confidence` via a structured Claude call, then executes the action (`flag_for_manual_review` → `crm_contacts.last_sync_status = 'needs_review'`, `send_email_alert` → `emailService.sendAnomalyAlert()`, or logs only for `monitor_next_cycle`/`no_action_needed`).
+- ADR 009 (`docs/decisions/009-ai-agent-decision-making.md`): documents why the previous single-threshold "if anomaly then email" rule was insufficient and why the agent's combined signals and visible reasoning matter for an internal team.
+
+### Changed
+- `POST /api/invoices/extract` (`backend/routes/invoices.js`) now fetches all prior invoices for the company, calls `agentService.prioritizeAndAct()` instead of `emailService.sendAnomalyAlert()` directly, and returns the full decision as `agentDecision` in place of the old `emailAlert` field.
+- Result view (`frontend/src/components/ResultView.jsx`): replaces the "alert email sent" badge with an "Internal Agent Decision" card — a color-coded priority badge (high/medium/low/none), detected root cause, the agent's full reasoning text, the action taken, and its confidence level.
+
 ## [1.8.0] 19-08-2026
 
 ### Added

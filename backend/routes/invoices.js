@@ -1,7 +1,7 @@
 import { extractInvoiceData } from '../services/claudeService.js';
 import { analyzeInvoice, saveInvoice, fetchTrends } from '../services/analysisService.js';
 import { syncInvoiceToCRM } from '../services/crmService.js';
-import { sendAnomalyAlert } from '../services/emailService.js';
+import { prioritizeAndAct } from '../services/agentService.js';
 import pool from '../db/connection.js';
 
 export default async function invoicesRoutes(fastify) {
@@ -29,12 +29,28 @@ export default async function invoicesRoutes(fastify) {
       const crmSync = await syncInvoiceToCRM(extractedData, analysisResult, savedInvoice.id);
       const trends = await fetchTrends();
 
-      let emailAlert;
+      const { rows: historicalInvoices } = await pool.query(
+        'SELECT * FROM invoices WHERE company = $1 AND id != $2 ORDER BY created_at DESC',
+        [extractedData.companyName, savedInvoice.id]
+      );
+
+      let agentDecision;
       try {
-        emailAlert = await sendAnomalyAlert(extractedData, analysisResult);
+        agentDecision = await prioritizeAndAct(extractedData, analysisResult, historicalInvoices, crmSync);
       } catch (err) {
-        fastify.log.warn(`Failed to send anomaly alert email: ${err.message}`);
-        emailAlert = { sent: false, reason: err.message };
+        fastify.log.warn(`Agent prioritization failed: ${err.message}`);
+        agentDecision = {
+          priority: 'none',
+          reasoning: `Agent decision could not be generated: ${err.message}`,
+          likelyRootCause: 'unclear',
+          suggestedAction: 'no_action_needed',
+          confidence: 'low',
+          actionTaken: 'error',
+        };
+      }
+
+      if (agentDecision.actionTaken === 'flagged_for_manual_review' && crmSync) {
+        crmSync.last_sync_status = 'needs_review';
       }
 
       return reply.send({
@@ -45,7 +61,7 @@ export default async function invoicesRoutes(fastify) {
         analysis: analysisResult.analysis,
         recommendations: analysisResult.recommendations,
         trends,
-        emailAlert,
+        agentDecision,
         crmSync: crmSync ? {
           id: crmSync.id,
           company_name: crmSync.company_name,
