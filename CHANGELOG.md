@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.0] 19-08-2026
+
+### Added
+- `backend/services/emailService.js`: `sendAnomalyAlert(invoiceData, analysisResult)` sends an HTML email via Resend when an anomaly is detected — company, billing period, current vs. average consumption with percent difference, anomaly description, and the top recommendation. Skips silently (`{ sent: false, reason }`) when there's no anomaly or email isn't configured.
+- `resend` dependency added to `backend/package.json`; `RESEND_API_KEY` and `ALERT_EMAIL` environment variables added to `.env` / `.env.example`.
+- `POST /api/invoices/extract` now calls `sendAnomalyAlert()` after the CRM sync step and includes the result as `emailAlert` in the response. Failures are caught and logged as warnings without breaking the request.
+- Result view (`frontend/src/components/ResultView.jsx`): shows a "📧 Alert email sent" badge next to the company name and a note under the anomalies section when `emailAlert.sent` is true.
+- ADR 008 (`docs/decisions/008-email-alerts-for-anomalies.md`): documents why automatic alerts matter (agent that acts, not just analyzes), why Resend over SendGrid/Mailgun, and how this would extend to Slack/PagerDuty/CRM-contact routing in production.
+
 ## [1.7.0] 17-08-2026
 
 ### Added

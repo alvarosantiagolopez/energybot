@@ -1,6 +1,7 @@
 import { extractInvoiceData } from '../services/claudeService.js';
 import { analyzeInvoice, saveInvoice, fetchTrends } from '../services/analysisService.js';
 import { syncInvoiceToCRM } from '../services/crmService.js';
+import { sendAnomalyAlert } from '../services/emailService.js';
 import pool from '../db/connection.js';
 
 export default async function invoicesRoutes(fastify) {
@@ -28,6 +29,14 @@ export default async function invoicesRoutes(fastify) {
       const crmSync = await syncInvoiceToCRM(extractedData, analysisResult, savedInvoice.id);
       const trends = await fetchTrends();
 
+      let emailAlert;
+      try {
+        emailAlert = await sendAnomalyAlert(extractedData, analysisResult);
+      } catch (err) {
+        fastify.log.warn(`Failed to send anomaly alert email: ${err.message}`);
+        emailAlert = { sent: false, reason: err.message };
+      }
+
       return reply.send({
         invoice: savedInvoice,
         extracted: extractedData,
@@ -36,6 +45,7 @@ export default async function invoicesRoutes(fastify) {
         analysis: analysisResult.analysis,
         recommendations: analysisResult.recommendations,
         trends,
+        emailAlert,
         crmSync: crmSync ? {
           id: crmSync.id,
           company_name: crmSync.company_name,
