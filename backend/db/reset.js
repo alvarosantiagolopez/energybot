@@ -8,7 +8,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const SEED_DATA = [
-
+  {
+    filename: 'endesa_ene2025.pdf',
+    period: '2025-01-01 - 2025-01-31',
+    company: 'Endesa Energía S.A.',
+    consumption_kwh: 65.3,
+    total_cost: 47.28,
+    cost_per_kwh: 0.724,
+    contract_type: 'Residential',
+    ai_analysis: 'El consumo de este mes ha sido moderado, en línea con la media esperada para invierno. La temperatura fue más cálida que en diciembre, lo que se refleja en un ligero descenso del consumo. El coste total es razonable. Se recomienda mantener los hábitos actuales de uso.',
+    recommendations: JSON.stringify([
+      'Considera instalar un termostato programable para optimizar la calefacción nocturna',
+      'Desconecta electrodomésticos en modo standby para ahorrar un 5-10% en consumo',
+      'Revisa el aislamiento de puertas y ventanas para evitar pérdidas de calor'
+    ]),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía S.A.',
+      billingPeriod: { start: '2025-01-01', end: '2025-01-31' },
+      consumptionKwh: 65.3,
+      totalCost: 47.28,
+      costPerKwh: 0.724,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-001234',
+      dueDate: '2025-02-10',
+    },
+  },
   {
     filename: 'endesa_eneUNI2025.pdf',
     period: '2025-01-01 - 2025-01-31',
@@ -33,6 +58,58 @@ const SEED_DATA = [
       contractType: 'Residential',
       invoiceNumber: 'END-2025-001234',
       dueDate: '2025-02-10',
+    },
+  },
+  {
+    filename: 'endesa_feb2025.pdf',
+    period: '2025-02-01 - 2025-02-28',
+    company: 'Endesa Energía, S.A.',
+    consumption_kwh: 72.1,
+    total_cost: 52.15,
+    cost_per_kwh: 0.723,
+    contract_type: 'Residential',
+    ai_analysis: 'El consumo en febrero ha aumentado un 10% respecto a enero debido a las temperaturas más bajas. Este incremento es normal y previsible. El coste por kWh se mantiene estable. Se aconseja mantener el seguimiento del consumo durante los próximos meses.',
+    recommendations: JSON.stringify([
+      'Utiliza la calefacción solo en las horas necesarias (8h-22h)',
+      'Reduce la temperatura interior 1-2°C durante la noche',
+      'Asegúrate de que las ventanas cierren completamente'
+    ]),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A.',
+      billingPeriod: { start: '2025-02-01', end: '2025-02-28' },
+      consumptionKwh: 72.1,
+      totalCost: 52.15,
+      costPerKwh: 0.723,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-001235',
+      dueDate: '2025-03-10',
+    },
+  },
+  {
+    filename: 'endesa_mar2025.pdf',
+    period: '2025-03-01 - 2025-03-31',
+    company: 'Endesa Energía, S.A',
+    consumption_kwh: 58.7,
+    total_cost: 42.48,
+    cost_per_kwh: 0.724,
+    contract_type: 'Residential',
+    ai_analysis: 'La tendencia es muy positiva. El consumo ha disminuido un 18.5% respecto a febrero, reflejo de la mejora en las condiciones climáticas de primavera. El coste total también ha bajado proporcionalmente. Se recomienda continuar con las prácticas actuales de eficiencia.',
+    recommendations: JSON.stringify([
+      'Aumenta gradualmente el uso de calefacción según las temperaturas',
+      'Aprovecha las horas de luz natural para reducir el uso de iluminación artificial',
+      'Considera cambiar a una tarifa con discriminación horaria si la tienes disponible'
+    ]),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A.',
+      billingPeriod: { start: '2025-03-01', end: '2025-03-31' },
+      consumptionKwh: 58.7,
+      totalCost: 42.48,
+      costPerKwh: 0.724,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-001236',
+      dueDate: '2025-04-10',
     },
   },
   {
@@ -116,21 +193,14 @@ const SEED_DATA = [
   },
 ];
 
-async function seedDatabase() {
+async function resetDatabase() {
   try {
-    // Check if database already has data
-    const { rows: existingInvoices } = await pool.query('SELECT COUNT(*) as count FROM invoices');
-    const invoiceCount = parseInt(existingInvoices[0].count, 10);
+    console.log('🧹 Truncating invoices and crm_contacts...');
+    await pool.query('TRUNCATE TABLE invoices, crm_contacts RESTART IDENTITY CASCADE');
+    console.log('✓ Tables cleared\n');
 
-    if (invoiceCount > 3) {
-      console.log('✓ Database already seeded. Skipping seed script.');
-      await pool.end();
-      return;
-    }
+    console.log('📥 Seeding database with realistic demo data...\n');
 
-    console.log('Seeding database with realistic demo data...\n');
-
-    // Insert invoices
     for (const invoiceData of SEED_DATA) {
       const { rows } = await pool.query(
         `INSERT INTO invoices
@@ -155,8 +225,6 @@ async function seedDatabase() {
       const invoice = rows[0];
       console.log(`✓ Inserted invoice: ${invoice.company} (${invoice.period})`);
 
-      // Sync to CRM after each invoice insert
-      // Create a minimal extractedData and analysisResult for CRM sync
       const extractedData = invoiceData.raw_extracted_data;
       const analysisResult = {
         anomalies: invoiceData.anomalies || null,
@@ -170,19 +238,14 @@ async function seedDatabase() {
       }
     }
 
-    console.log(`\n✅ Seeded ${SEED_DATA.length} invoices and synced to CRM`);
-    console.log('\nDatabase is now ready for portfolio demo:');
-    console.log('  - 3 invoices from Endesa (normal trend)');
-    console.log('  - 2 invoices from Iberdrola (with 1 anomaly)');
-    console.log('  - 1 invoice from Naturgy (efficient usage)');
-    console.log('  - All contacts auto-synced to CRM view');
+    console.log(`\n✅ Reset complete: ${SEED_DATA.length} invoices seeded and synced to CRM`);
 
     await pool.end();
   } catch (err) {
-    console.error('❌ Seed failed:', err.message);
+    console.error('❌ Reset failed:', err.message);
     await pool.end();
     process.exit(1);
   }
 }
 
-seedDatabase();
+resetDatabase();
