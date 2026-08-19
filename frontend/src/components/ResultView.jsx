@@ -12,12 +12,34 @@ function formatDiff(value) {
 
 const RECOMMENDATION_ICONS = ['💡', '🔧', '📉', '⚡', '🔋'];
 
+const PRIORITY_STYLES = {
+  high: { color: '#b91c1c', background: '#fee2e2', label: 'High Priority' },
+  medium: { color: '#c2410c', background: '#ffedd5', label: 'Medium Priority' },
+  low: { color: '#a16207', background: '#fef9c3', label: 'Low Priority' },
+  none: { color: '#4b5563', background: '#f3f4f6', label: 'No Priority' },
+};
+
+const ROOT_CAUSE_LABELS = {
+  billing_error: 'Billing Error',
+  consumption_increase: 'Consumption Increase',
+  seasonal_pattern: 'Seasonal Pattern',
+  unclear: 'Unclear',
+};
+
+const ACTION_LABELS = {
+  flagged_for_manual_review: '🚩 Flagged for manual review',
+  email_alert_sent: '📧 Email alert sent',
+  logged_only: '📝 Logged only',
+  skipped_no_crm_contact: '⚠ Skipped (no CRM contact)',
+  error: '⚠ Decision failed',
+};
+
 /**
  * Shows the extracted invoice data, historical comparison, anomalies,
  * AI analysis, and recommendations for a single processed invoice.
  */
 function ResultView({ data, onUploadAnother }) {
-  const { extracted, comparison, anomalies, analysis, recommendations, crmSync, emailAlert } = data;
+  const { extracted, comparison, anomalies, analysis, recommendations, crmSync, agentDecision } = data;
 
   const hasHistory = comparison && (comparison.avgConsumption !== null || comparison.avgCostPerKwh !== null);
   const consumptionDiff = formatDiff(comparison?.consumptionDiffPct);
@@ -31,9 +53,6 @@ function ResultView({ data, onUploadAnother }) {
           <span className="metric-card__value metric-card__value--small">{extracted.companyName || 'N/A'}</span>
           {crmSync && (
             <span className="crm-sync-badge">✓ Synced with CRM</span>
-          )}
-          {emailAlert?.sent && (
-            <span className="crm-sync-badge">📧 Alert email sent</span>
           )}
         </div>
         <div className="metric-card">
@@ -92,8 +111,38 @@ function ResultView({ data, onUploadAnother }) {
         <section className="card card--anomaly">
           <h2>⚠ Anomalies Detected</h2>
           <p>{anomalies}</p>
-          {emailAlert?.sent && (
-            <p className="anomaly-alert-note">An automatic alert has been sent to your team.</p>
+        </section>
+      )}
+
+      {agentDecision && (
+        <section className="card card--agent-decision">
+          <h2>🤖 Internal Agent Decision</h2>
+          <div className="agent-decision__badges">
+            <span
+              className="agent-decision__badge"
+              style={{
+                color: (PRIORITY_STYLES[agentDecision.priority] || PRIORITY_STYLES.none).color,
+                background: (PRIORITY_STYLES[agentDecision.priority] || PRIORITY_STYLES.none).background,
+              }}
+            >
+              {(PRIORITY_STYLES[agentDecision.priority] || PRIORITY_STYLES.none).label}
+            </span>
+            <span className="agent-decision__badge agent-decision__badge--neutral">
+              Root cause: {ROOT_CAUSE_LABELS[agentDecision.likelyRootCause] || 'Unclear'}
+            </span>
+            <span className="agent-decision__badge agent-decision__badge--neutral">
+              Confidence: {agentDecision.confidence}
+            </span>
+          </div>
+
+          {agentDecision.reasoning && (
+            <p className="agent-decision__reasoning">{agentDecision.reasoning}</p>
+          )}
+
+          {agentDecision.actionTaken && (
+            <p className="agent-decision__action">
+              {ACTION_LABELS[agentDecision.actionTaken] || agentDecision.actionTaken}
+            </p>
           )}
         </section>
       )}
