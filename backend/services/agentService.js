@@ -26,7 +26,7 @@ const DECISION_SCHEMA = {
     priority: { type: 'string', enum: ['high', 'medium', 'low', 'none'] },
     reasoning: {
       type: 'string',
-      description: 'Detailed explanation of WHY this priority, referencing the specific signals considered (historical pattern, client value, anomaly type)',
+      description: 'Detailed explanation of WHY this priority, referencing the specific signals considered (historical pattern, client value, anomaly type). MUST be written in Spanish.',
     },
     likelyRootCause: {
       type: 'string',
@@ -84,9 +84,13 @@ Reason about whether this is likely a BILLING ERROR (a sudden, isolated spike in
 THE HARD PART: WEIGH CONFLICTING SIGNALS
 Do not just detect a threshold and stop. Explicitly weigh signals that can point in different directions. For example: a small client with a huge anomaly (large % deviation, low total spend) versus a large client with a moderate anomaly (small % deviation, high total spend) — which one actually needs the account team's attention first? Consider: severity of deviation, whether it has happened before for this client (recurring problems may indicate a persistent billing issue worth escalating, or may indicate the client's usage is simply volatile and not worth re-flagging every time), and total business value at stake if the relationship sours or the client churns.
 
+Pay close attention to whether the historical pattern actually supports a seasonal explanation. If the client has a prior invoice from the same month in an earlier year (or an equivalent season) and that prior reading does NOT show the same spike, seasonality is ruled out as the cause — do not use "winter" or "season" as a hand-wave if the client's own history contradicts it. A flat, tight historical baseline (very low variance across many invoices) combined with a single extreme, isolated spike is the clearest possible signature of a billing error, not normal volatility.
+
+When you conclude the root cause is very likely a billing error — high confidence, tight/stable baseline, no plausible seasonal or trend explanation in the data — that is precisely the situation where waiting for a human to notice a manual-review flag is the wrong call: the client is likely being overcharged right now. In that case, suggestedAction should be send_email_alert so the client is notified immediately, not flag_for_manual_review (which just queues it silently). Reserve flag_for_manual_review for cases where the interpretation is genuinely ambiguous (e.g. thin history, plausible seasonal or trend explanation, or low confidence).
+
 Decide:
 1. priority: high | medium | low | none — how urgently should our team look at this?
-2. reasoning: explain WHY, explicitly referencing the historical pattern, the client value, and the anomaly type signals above — not just "there was an anomaly."
+2. reasoning: explain WHY, explicitly referencing the historical pattern, the client value, and the anomaly type signals above — not just "there was an anomaly." **Write this field in Spanish, in a clear and professional tone — this is the only field read by non-technical stakeholders.**
 3. likelyRootCause: billing_error | consumption_increase | seasonal_pattern | unclear
 4. suggestedAction: flag_for_manual_review | send_email_alert | monitor_next_cycle | no_action_needed
 5. confidence: high | medium | low — how confident are you in this assessment given the available data?`;

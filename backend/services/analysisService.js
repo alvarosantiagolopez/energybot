@@ -44,15 +44,15 @@ function percentDiff(current, avg) {
 }
 
 /**
- * Compares the current invoice against the last HISTORY_LIMIT invoices in the DB
- * and asks Claude to produce a natural-language analysis in Spanish.
+ * Compares the current invoice against the last HISTORY_LIMIT invoices from the same
+ * company in the DB and asks Claude to produce a natural-language analysis in Spanish.
  * @param {object} extractedData - Structured invoice data from claudeService.extractInvoiceData()
  * @returns {Promise<{comparison: object, anomalies: string|null, analysis: string, recommendations: string[]}>}
  */
 export async function analyzeInvoice(extractedData) {
   const { rows: history } = await pool.query(
-    'SELECT consumption_kwh, cost_per_kwh, total_cost FROM invoices ORDER BY created_at DESC LIMIT $1',
-    [HISTORY_LIMIT]
+    'SELECT consumption_kwh, cost_per_kwh, total_cost FROM invoices WHERE company = $1 ORDER BY created_at DESC LIMIT $2',
+    [extractedData.companyName, HISTORY_LIMIT]
   );
 
   const avgConsumption = average(history.map((r) => Number(r.consumption_kwh)).filter((v) => !Number.isNaN(v)));
@@ -102,6 +102,8 @@ Comparación con las últimas ${history.length} facturas registradas:
 - Diferencia de coste total vs. media: ${costDiffPct !== null ? costDiffPct.toFixed(1) + '%' : 'N/A'}
 
 Anomalías detectadas (umbral ${ANOMALY_THRESHOLD_PCT}%): ${anomalies ?? 'ninguna'}
+
+**IMPORTANTE: Responde SIEMPRE en español, sin excepciones. Todos los campos deben estar en español.**
 
 Genera un análisis en español, en un tono claro y cercano, resumiendo la situación de esta factura frente al histórico. Si no hay datos históricos suficientes, indícalo. Luego proporciona entre 2 y 3 recomendaciones concretas y accionables para reducir el consumo o el coste.`;
 

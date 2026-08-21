@@ -8,31 +8,136 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const SEED_DATA = [
-
   {
-    filename: 'endesa_eneUNI2025.pdf',
+    filename: 'endesa_ene2025.pdf',
     period: '2025-01-01 - 2025-01-31',
     company: 'Endesa Energía, S.A. Unipersonal',
-    consumption_kwh: 165.3,
-    total_cost: 90.28,
-    cost_per_kwh: 0.546,
+    consumption_kwh: 34.6,
+    total_cost: 26.85,
+    cost_per_kwh: 0.776,
     contract_type: 'Residential',
-    ai_analysis: 'El consumo de este mes ha sido moderado, en línea con la media esperada para invierno. La temperatura fue más cálida que en diciembre, lo que se refleja en un ligero descenso del consumo. El coste total es razonable. Se recomienda mantener los hábitos actuales de uso.',
-    recommendations: JSON.stringify([
-      'Considera instalar un termostato programable para optimizar la calefacción nocturna',
-      'Desconecta electrodomésticos en modo standby para ahorrar un 5-10% en consumo',
-      'Revisa el aislamiento de puertas y ventanas para evitar pérdidas de calor'
-    ]),
+    ai_analysis: 'Consumo bajo típico de enero para este cliente, sin incremento por frío invernal.',
+    recommendations: JSON.stringify(['Mantén los hábitos actuales']),
     raw_extracted_data: {
       companyName: 'Endesa Energía, S.A. Unipersonal',
       billingPeriod: { start: '2025-01-01', end: '2025-01-31' },
-      consumptionKwh: 165.3,
-      totalCost: 90.28,
-      costPerKwh: 0.546,
+      consumptionKwh: 34.6,
+      totalCost: 26.85,
+      costPerKwh: 0.776,
       currency: 'EUR',
       contractType: 'Residential',
-      invoiceNumber: 'END-2025-001234',
+      invoiceNumber: 'END-2025-000111',
       dueDate: '2025-02-10',
+    },
+  },
+  {
+    filename: 'endesa_ago2025.pdf',
+    period: '2025-08-01 - 2025-08-31',
+    company: 'Endesa Energía, S.A. Unipersonal',
+    consumption_kwh: 33.2,
+    total_cost: 25.76,
+    cost_per_kwh: 0.776,
+    contract_type: 'Residential',
+    ai_analysis: 'Consumo bajo para verano. Patrón normal de eficiencia.',
+    recommendations: JSON.stringify(['Mantén los hábitos actuales']),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A. Unipersonal',
+      billingPeriod: { start: '2025-08-01', end: '2025-08-31' },
+      consumptionKwh: 33.2,
+      totalCost: 25.76,
+      costPerKwh: 0.776,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-008888',
+      dueDate: '2025-09-10',
+    },
+  },
+  {
+    filename: 'endesa_sep2025.pdf',
+    period: '2025-09-01 - 2025-09-30',
+    company: 'Endesa Energía, S.A. Unipersonal',
+    consumption_kwh: 35.8,
+    total_cost: 27.81,
+    cost_per_kwh: 0.776,
+    contract_type: 'Residential',
+    ai_analysis: 'Consumo bajo en transición a otoño.',
+    recommendations: JSON.stringify(['Patrón normal']),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A. Unipersonal',
+      billingPeriod: { start: '2025-09-01', end: '2025-09-30' },
+      consumptionKwh: 35.8,
+      totalCost: 27.81,
+      costPerKwh: 0.776,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-009999',
+      dueDate: '2025-10-10',
+    },
+  },
+  {
+    filename: 'endesa_oct2025.pdf',
+    period: '2025-10-01 - 2025-10-31',
+    company: 'Endesa Energía, S.A. Unipersonal',
+    consumption_kwh: 36.5,
+    total_cost: 28.33,
+    cost_per_kwh: 0.776,
+    contract_type: 'Residential',
+    ai_analysis: 'Consumo moderado bajo para octubre.',
+    recommendations: JSON.stringify(['Mantén monitoreo regular']),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A. Unipersonal',
+      billingPeriod: { start: '2025-10-01', end: '2025-10-31' },
+      consumptionKwh: 36.5,
+      totalCost: 28.33,
+      costPerKwh: 0.776,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-010000',
+      dueDate: '2025-11-10',
+    },
+  },
+  {
+    filename: 'endesa_nov2025.pdf',
+    period: '2025-11-01 - 2025-11-30',
+    company: 'Endesa Energía, S.A. Unipersonal',
+    consumption_kwh: 34.1,
+    total_cost: 26.46,
+    cost_per_kwh: 0.776,
+    contract_type: 'Residential',
+    ai_analysis: 'Consumo bajo para noviembre.',
+    recommendations: JSON.stringify(['Continúa monitoreando']),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A. Unipersonal',
+      billingPeriod: { start: '2025-11-01', end: '2025-11-30' },
+      consumptionKwh: 34.1,
+      totalCost: 26.46,
+      costPerKwh: 0.776,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-011111',
+      dueDate: '2025-12-10',
+    },
+  },
+  {
+    filename: 'endesa_dic2025.pdf',
+    period: '2025-12-01 - 2025-12-31',
+    company: 'Endesa Energía, S.A. Unipersonal',
+    consumption_kwh: 35.9,
+    total_cost: 27.87,
+    cost_per_kwh: 0.776,
+    contract_type: 'Residential',
+    ai_analysis: 'Consumo bajo en diciembre.',
+    recommendations: JSON.stringify(['Patrón normal']),
+    raw_extracted_data: {
+      companyName: 'Endesa Energía, S.A. Unipersonal',
+      billingPeriod: { start: '2025-12-01', end: '2025-12-31' },
+      consumptionKwh: 35.9,
+      totalCost: 27.87,
+      costPerKwh: 0.776,
+      currency: 'EUR',
+      contractType: 'Residential',
+      invoiceNumber: 'END-2025-012222',
+      dueDate: '2026-01-10',
     },
   },
   {
@@ -118,17 +223,11 @@ const SEED_DATA = [
 
 async function seedDatabase() {
   try {
-    // Check if database already has data
-    const { rows: existingInvoices } = await pool.query('SELECT COUNT(*) as count FROM invoices');
-    const invoiceCount = parseInt(existingInvoices[0].count, 10);
+    console.log('🧹 Truncating invoices and crm_contacts...');
+    await pool.query('TRUNCATE TABLE invoices, crm_contacts RESTART IDENTITY CASCADE');
+    console.log('✓ Tables cleared\n');
 
-    if (invoiceCount > 3) {
-      console.log('✓ Database already seeded. Skipping seed script.');
-      await pool.end();
-      return;
-    }
-
-    console.log('Seeding database with realistic demo data...\n');
+    console.log('📥 Seeding database with realistic demo data...\n');
 
     // Insert invoices
     for (const invoiceData of SEED_DATA) {
@@ -171,8 +270,10 @@ async function seedDatabase() {
     }
 
     console.log(`\n✅ Seeded ${SEED_DATA.length} invoices and synced to CRM`);
-    console.log('\nDatabase is now ready for portfolio demo:');
-    console.log('  - 3 invoices from Endesa (normal trend)');
+    console.log('\nDatabase is now ready for HIGH PRIORITY anomaly detection demo:');
+    console.log('  - 5 invoices from Endesa (baseline: avg ~35.1 kWh, Aug-Dec 2025)');
+    console.log('  - When you upload the 62.451 kWh invoice (31/12-31/01), it will trigger HIGH PRIORITY');
+    console.log('  - +78% above average = extreme anomaly that WILL send email alert');
     console.log('  - 2 invoices from Iberdrola (with 1 anomaly)');
     console.log('  - 1 invoice from Naturgy (efficient usage)');
     console.log('  - All contacts auto-synced to CRM view');
