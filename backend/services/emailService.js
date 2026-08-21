@@ -11,39 +11,39 @@ function buildAlertHtml(invoiceData, analysisResult) {
 
   const topRecommendation = Array.isArray(recommendations) && recommendations.length > 0
     ? recommendations[0]
-    : 'No specific recommendation available.';
+    : 'No hay ninguna recomendación específica disponible.';
 
   const period = billingPeriod?.start && billingPeriod?.end
-    ? `${billingPeriod.start} to ${billingPeriod.end}`
-    : 'N/A';
+    ? `${billingPeriod.start} a ${billingPeriod.end}`
+    : 'N/D';
 
   const diffLabel = typeof percentDifference === 'number'
     ? `${percentDifference > 0 ? '+' : ''}${percentDifference.toFixed(1)}%`
-    : 'N/A';
+    : 'N/D';
 
   return `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-      <h2 style="color: #b91c1c;">⚠️ Energy Anomaly Detected</h2>
-      <p><strong>Company:</strong> ${companyName}</p>
-      <p><strong>Billing period:</strong> ${period}</p>
+      <h2 style="color: #b91c1c;">⚠️ Anomalía Energética Detectada</h2>
+      <p><strong>Empresa:</strong> ${companyName}</p>
+      <p><strong>Período de facturación:</strong> ${period}</p>
       <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
         <tr>
-          <td style="padding: 8px; border: 1px solid #e5e5e5;">Current consumption</td>
+          <td style="padding: 8px; border: 1px solid #e5e5e5;">Consumo actual</td>
           <td style="padding: 8px; border: 1px solid #e5e5e5;">${consumptionKwh} kWh</td>
         </tr>
         <tr>
-          <td style="padding: 8px; border: 1px solid #e5e5e5;">Average consumption</td>
-          <td style="padding: 8px; border: 1px solid #e5e5e5;">${typeof averageConsumption === 'number' ? averageConsumption.toFixed(1) : 'N/A'} kWh</td>
+          <td style="padding: 8px; border: 1px solid #e5e5e5;">Consumo medio</td>
+          <td style="padding: 8px; border: 1px solid #e5e5e5;">${typeof averageConsumption === 'number' ? averageConsumption.toFixed(1) : 'N/D'} kWh</td>
         </tr>
         <tr>
-          <td style="padding: 8px; border: 1px solid #e5e5e5;">Difference vs average</td>
+          <td style="padding: 8px; border: 1px solid #e5e5e5;">Diferencia vs. media</td>
           <td style="padding: 8px; border: 1px solid #e5e5e5;">${diffLabel}</td>
         </tr>
       </table>
-      <p><strong>Anomaly:</strong> ${anomalies}</p>
-      <p><strong>Top recommendation:</strong> ${topRecommendation}</p>
+      <p><strong>Anomalía:</strong> ${anomalies}</p>
+      <p><strong>Recomendación principal:</strong> ${topRecommendation}</p>
       <p style="margin-top: 24px;">
-        <a href="#" style="color: #2563eb;">View full analysis in EnergyBot</a>
+        <a href="#" style="color: #2563eb;">Ver análisis completo en EnergyBot</a>
       </p>
     </div>
   `;
@@ -63,7 +63,7 @@ export async function sendAnomalyAlert(invoiceData, analysisResult) {
     const { data, error } = await resend.emails.send({
       from: 'EnergyBot <onboarding@resend.dev>',
       to: process.env.ALERT_EMAIL,
-      subject: `⚠️ Energy Anomaly Detected - ${invoiceData.companyName}`,
+      subject: `⚠️ Anomalía Energética Detectada - ${invoiceData.companyName}`,
       html: buildAlertHtml(invoiceData, analysisResult),
     });
 
